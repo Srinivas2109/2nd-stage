@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemma-2b Chatbot</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="chat-container">
+        <div id="chat-box">
+            <!-- Chat messages will appear here -->
+        </div>
+        <input type="text" id="user-input" placeholder="Type your message here...">
+        <button id="send-btn">Send</button>
+    </div>
+
+    <script>
+        document.getElementById("send-btn").addEventListener("click", function() {
+            let userInput = document.getElementById("user-input").value;
+            if (userInput.trim() !== "") {
+                fetch("/chat", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ user_input: userInput })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    let chatBox = document.getElementById("chat-box");
+                    let userMessage = document.createElement("div");
+                    userMessage.className = "message user-message";
+                    userMessage.innerText = "You: " + userInput;
+                    chatBox.appendChild(userMessage);
+
+                    let botMessage = document.createElement("div");
+                    botMessage.className = "message bot-message";
+                    botMessage.innerText = "Gemma-2b: " + (data.response || data.error);
+                    chatBox.appendChild(botMessage);
+
+                    document.getElementById("user-input").value = "";
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                });
+            }
+        });
+    </script>
+</body>
+</html>
